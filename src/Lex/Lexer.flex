@@ -27,7 +27,7 @@ WHITE = [ \b\r\f\t\n]
 	public Symbol token(int simbolo,String componenteLexico){
 		Cup.vars++;
 		Lexema lexema = new Lexema( yytext() );
-                Interface.addLexemes(yytext()+","+componenteLexico);
+                Interface.addLexemes(yytext()+","+componenteLexico); // esta linea para el video Himura para la tabla de simbolos
 		return new Symbol(simbolo,yyline,yycolumn,lexema);
 	}
 	

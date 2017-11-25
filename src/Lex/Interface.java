@@ -43,8 +43,8 @@ public class Interface extends javax.swing.JFrame {
     private DefaultTableModel dtm;
     private static ArrayList<String> listaErrores;
     private static ArrayList<String> lista3 = new ArrayList<>();
-    private static ArrayList<String> produtions = new ArrayList<String>();
-    private static ArrayList<String> lexemes = new ArrayList<String>();
+    private static ArrayList<String> produtions = new ArrayList<String>(); //variable para gramatica  himura
+    private static ArrayList<String> lexemes = new ArrayList<String>(); //variable para tabla de simbolos himura
     
     static ArrayList<String> listaLexemas;
     static String DireccionPath = "";
@@ -538,7 +538,7 @@ public class Interface extends javax.swing.JFrame {
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
        Gramatica gramar =  new Gramatica(this, rootPaneCheckingEnabled, produtions);
-       gramar.setVisible(true);
+       gramar.setVisible(true); // este codigo tambien se agrego himura
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void run() throws IOException, Exception {
@@ -669,7 +669,7 @@ public class Interface extends javax.swing.JFrame {
         }
     }
     
-    private void tablaSimbols(){
+    private void tablaSimbols(){ //este codigo para el video himura generacion de la tabña de simbolos
         DefaultTableModel dtm = new DefaultTableModel();
         dtm.addColumn("Token");
         dtm.addColumn("Lexema");
@@ -693,11 +693,11 @@ public class Interface extends javax.swing.JFrame {
         listaErrores.add(error);
     }
     
-    public static void addProduction(String prod){
+    public static void addProduction(String prod){ //Codigo para video Himura agregas a la variable produtions, en Cup.cup
         produtions.add(prod);
     }
     
-    public static void addLexemes(String lex){
+    public static void addLexemes(String lex){ // Codigo para video Himura agregas a la variable lexemes, en Lexer.flex
         lexemes.add(lex);
       
     }
