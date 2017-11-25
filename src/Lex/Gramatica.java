@@ -13,6 +13,7 @@ import java.util.ArrayList;
  */
 public class Gramatica extends javax.swing.JDialog {
 static String cad = "";
+
     /**
      * Creates new form Gramatica
      */
@@ -20,7 +21,7 @@ static String cad = "";
         super(parent, modal);
         initComponents();
         
-        productions.forEach(x->{
+        productions.forEach(x->{ // himura este codigo es para imprimir las producciones
             Gramatica.cad = cad+x+"\n";
         });
         

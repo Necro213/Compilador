@@ -62,7 +62,7 @@ StringBuilder me;
     Interface.setError(me.toString());
 }
 
-public static void addProduction(String prod){
+public static void addProduction(String prod){ // Himura mandas las producciones a la interfaz con este metodo
     StringBuilder production;
 
     production = new StringBuilder("->"+prod);
@@ -107,6 +107,10 @@ start with inicio;
 ///////////////////////////////////////////////////////////////////------INICIO---------///////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/* himura todo donde aparezca algo como esto:
+{: Cup.addProduction("inicio");:}
+es para llamar al metodo que manda a la interfaz las producciones
+*/
 inicio::= {: Cup.addProduction("inicio");:} NEW FLY PLAN PALABRA primer_cuerpo
             | error PUNTO_Y_COMA primer_cuerpo;
 
