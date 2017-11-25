@@ -1,0 +1,290 @@
+package Lex;
+import java.io.FileReader;
+import java.util.Hashtable;
+import java.util.Stack;
+import java_cup.runtime.*;
+
+import java_cup.runtime.Symbol;
+
+action code{:
+
+
+void print(String msj)
+ 
+   {System.out.println(msj);}
+
+
+:}
+
+init with{:
+    vars = 0;
+    :}
+
+parser code {:
+
+    Hashtable<String, Lexema> tabla = new Hashtable<>();
+    int contadorTemporales = 0; 
+    int ifs = 0;
+    int whiles = 0;
+    int fors = 0;
+    int switches = 0;
+    int cases = 0;
+    Stack caso = new Stack();
+
+    public static int vars;
+    StringBuilder m = new StringBuilder("");
+
+
+public void report_error(String message, Object info) {
+        if (info instanceof java_cup.runtime.Symbol){
+            java_cup.runtime.Symbol s = ((java_cup.runtime.Symbol) info);
+            m=new StringBuilder("Error Critico "+s+" : ");
+            if (s.left >= 0) {m.append(" Linea: "+(s.left+1));
+                if (s.right >= 0)m.append(" Columna: "+(s.right+1)+"\nRepare antes de Continuar");}}
+            if(m.length()!=0)
+                Interface.setError(m+"");
+    }
+
+public void syntax_error(Symbol s){
+append("La Cadena:" + s.value+" en la Linea: "+(s.left+1)+ " esta fuera de contexto.");
+}
+
+
+public void unrecovered_syntax_error(Symbol s) throws java.lang.Exception{
+append("La Cadena:" + s.value+" en la Linea: "+(s.left+1)+ " esta fuera de contexto.");
+}
+
+public static void append(String mensaje){
+StringBuilder me;
+    me = new StringBuilder("Error Sintactico: "+" ");
+    me.append(mensaje);
+    //System.out.println(me);
+    Interface.setError(me.toString());
+}
+
+    public static void main(String[] args){
+        try {
+                Cup sintactico = new Cup(new Lexer(new FileReader(args[0])));
+try{
+                Object result = sintactico.parse().value;}catch(Exception ex){
+
+
+}
+            System.out.println("\n*** Resultados finales ***");
+        } catch (Exception ex) {
+           // ex.printStackTrace();
+        }
+    }
+:};
+
+
+
+
+terminal Lexema  //DECLARACION DE TERMINALES
+
+ID,ENTERO,ERROR,SIGNO_DE_ASIGNACION,DECIMAL,SUMA,RESTA,MULTIPLICACION,
+    DIVISION,MAYOR_QUE,MENOR_QUE,MAYOR_IGUAL,MENOR_IGUAL,AND,OR,IGUAL_A,DIFERENTE_DE,
+    PUNTO,COMA,PUNTO_Y_COMA,DOS_PUNTOS,PARENTESIS_ABRIR,PARENTESIS_CERRAR,CORCHETE_ABRIR,
+    CORCHETE_CERRAR,LLAVE_ABRIR,LLAVE_CERRAR,IMPORTAR,FIN_IMPORTAR,SI,FIN_SI,SINO,FIN_SINO,
+    REPITE,FIN_REPITE,VERDADERO,FALSO,MIENTRAS,FIN_MIENTRAS,SEGUN,FIN_SEGUN,LOGICO,CADENA,CASO,
+    HACER,COLECCION,ATRIBUTO,RELACION,JSON,INICIO_PROGRAMA,FIN,BASEDATOS,EMBEBIDOPARCIAL,EMBEBIDOCOMPLETO,
+    NUM_ENTERO,NUM_DECIMAL,PA,CAD,SIM,EJECUTAR,FIN_EJECUTAR,INSERTAR,REMOVER,IMPRIMIR,NEGACION;
+
+non terminal Lexema //DECLACACION DE NO TERMINALES
+inicio,cuerpo,decvariables,metodos,tipo_dato,dato,cuerpo_metodo,parametros,operacion,t,f,
+sum_cad,sentencias,parametros_recibidos,nuevo_parametro,asignar,sentencia_si,sentencia_sino,sentencia_repite,
+sentencia_mientras,sentencia_segun,cas,dato_caso,condicion,cond,log,ope_relacional,op_rel,sig_rel,
+eje_pro,asigna_base,produccion_cadena,cad_ter,var_fin,pyc_fin,sadap_fin,con,metodos1,metodos2,metodos3,decvariables1,
+decvariables2, cuerpo_metodo1,cuerpo_metodo2,cuerpo_metodo3,cuerpo_metodo4,parametros1,operacion1,t1,f1,invocar_metodos,
+invocar_metodos1, ins_rem, ins_rem1, op_base, op_base1, nombre, sentencia_si1, sentencia_si2, cuerpo1,h8,decvariables_metodos
+
+;
+
+
+start with inicio;
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////------INICIO---------///////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+inicio::= INICIO_PROGRAMA PA cuerpo FIN |
+	  IMPORTAR FIN_IMPORTAR INICIO_PROGRAMA PA cuerpo FIN |
+            INICIO_PROGRAMA:e cuerpo FIN  {:Cup.append("Linea: "+(eleft+1)+" No se encontro el nombre del programa");:}|
+            INICIO_PROGRAMA PA cuerpo{:Cup.append("Falta La Palabra reservada 'fin'");:}|
+IMPORTAR FIN_IMPORTAR INICIO_PROGRAMA:e cuerpo FIN {:Cup.append("Linea: "+(eleft+1)+" No se encontro el nombre del programa");:} |
+IMPORTAR FIN_IMPORTAR INICIO_PROGRAMA PA cuerpo {:Cup.append("Falta La Palabra reservada 'fin'");:} |
+INICIO_PROGRAMA:e cuerpo {:Cup.append("Linea: "+(eleft+1)+" No se encontro el nombre del programa");:}|
+IMPORTAR FIN_IMPORTAR INICIO_PROGRAMA:e cuerpo {:Cup.append("Linea: "+(eleft+1)+" No se encontro el nombre del programa");:}|
+error PUNTO_Y_COMA cuerpo;
+
+
+cuerpo::= decvariables|
+	   metodos | 
+           eje_pro;
+
+h8::= ATRIBUTO PA PUNTO_Y_COMA |
+        ATRIBUTO PA:e {:Cup.append("Linea: "+(eleft+1)+" Hace Falta Punto y Coma");:}|
+                COLECCION PA PUNTO_Y_COMA |
+                COLECCION PA:e {:Cup.append("Linea: "+(eleft+1)+" Hace Falta Punto y Coma");:} |
+                ATRIBUTO :e PUNTO_Y_COMA {:Cup.append("Linea: "+(eleft+1)+" Declare el nombre del Atributo");:} |
+                COLECCION:e PUNTO_Y_COMA {:Cup.append("Linea: "+(eleft+1)+" Declare el nombre de La Coleccion");:} |
+                 error PUNTO_Y_COMA sentencias;
+          
+//*************************** Declaracion de Variables ********************************
+
+decvariables::= tipo_dato ID decvariables1 PUNTO_Y_COMA cuerpo | ATRIBUTO PA PUNTO_Y_COMA cuerpo |
+                tipo_dato ID decvariables1:e cuerpo {:Cup.append("Linea: "+(eleft+1)+" Hace Falta Punto y Coma");:} |
+                tipo_dato:e decvariables1 PUNTO_Y_COMA cuerpo {:Cup.append("Linea: "+(eleft+1)+" Declare el nombre de la Variable");:} |
+                tipo_dato:e decvariables1 cuerpo {:Cup.append("Linea: "+(eleft+1)+" Declare el nombre de la Variable");:} ;
+
+decvariables1::= SIGNO_DE_ASIGNACION dato | 
+                SIGNO_DE_ASIGNACION:e {:Cup.append("Linea: "+(eleft+1)+" Se esperaba (Tipo @var = dato;)");:}|
+                ''| error PUNTO_Y_COMA cuerpo ;
+
+
+//***************************** Metodos ***********************************************
+metodos::= metodos1 cuerpo;
+
+metodos1::= PA PARENTESIS_ABRIR metodos2;
+
+metodos2::= PARENTESIS_CERRAR LLAVE_ABRIR metodos3 | parametros PARENTESIS_CERRAR LLAVE_ABRIR metodos3;
+
+metodos3::= LLAVE_CERRAR | cuerpo_metodo LLAVE_CERRAR | error LLAVE_CERRAR cuerpo;
+
+//***************************** datos   ***********************************************
+dato::= NUM_ENTERO | ID | NUM_DECIMAL | VERDADERO | FALSO | CAD ;
+
+tipo_dato::= CADENA | ENTERO | DECIMAL | LOGICO ;
+
+//*************************  Cuerpo de Metodo  ****************************************
+
+cuerpo_metodo::= decvariables_metodos cuerpo_metodo1 | sentencias cuerpo_metodo1;
+
+cuerpo_metodo1::= decvariables_metodos cuerpo_metodo1 | sentencias cuerpo_metodo1 | '';
+
+decvariables_metodos::= tipo_dato ID decvariables1 PUNTO_Y_COMA | h8 ;
+
+//***************************** Parametros *********************************************
+parametros::= tipo_dato ID | parametros1 |
+                tipo_dato :e {:Cup.append("Linea: "+(eleft+1)+" Se Esperaba(tipo @var)");:};
+
+parametros1::= tipo_dato ID COMA parametros |
+                tipo_dato COMA parametros:e {:Cup.append("Linea: "+(eleft+1)+" Falta el Identificador(tipo @var,)");:} |
+                tipo_dato parametros:e {:Cup.append("Linea: "+(eleft+1)+" Se Esperaba(tipo @var,)");:}|
+                error LLAVE_ABRIR cuerpo_metodo;
+//**************************** Operacion ***********************************************
+operacion::= t operacion1 | error PUNTO_Y_COMA;
+
+operacion1::= SUMA t operacion1| RESTA t operacion1 | '';
+
+t::=  f t1 | '';
+
+t1::= MULTIPLICACION f t1 | DIVISION f t1 | '';
+
+f::= dato | PARENTESIS_ABRIR operacion PARENTESIS_CERRAR;
+
+//*************************** Sentencias ***********************************************
+sentencias::= asignar |
+                sentencia_si |
+                sentencia_repite |
+                sentencia_mientras |
+                sentencia_segun | 
+                invocar_metodos|
+                ATRIBUTO PUNTO PA PARENTESIS_ABRIR PA COMA tipo_dato PARENTESIS_CERRAR PUNTO_Y_COMA |
+                ATRIBUTO PUNTO PA PARENTESIS_ABRIR ID COMA tipo_dato PARENTESIS_CERRAR PUNTO_Y_COMA |
+                ins_rem |
+                op_base;
+
+invocar_metodos::= PA PARENTESIS_ABRIR invocar_metodos1;
+
+
+invocar_metodos1::= PARENTESIS_CERRAR PUNTO_Y_COMA |
+                    PARENTESIS_CERRAR:e {:Cup.append("Linea: "+(eleft+1)+" Faltó punto y coma");:} |
+                    parametros_recibidos PARENTESIS_CERRAR PUNTO_Y_COMA |
+                    parametros_recibidos PARENTESIS_CERRAR:e {:Cup.append("Linea: "+(eleft+1)+" Faltó punto y coma");:} |
+                    PUNTO_Y_COMA:e {:Cup.append("Linea: "+(eleft+1)+" Faltó llave cerrar");:} | error PUNTO_Y_COMA;
+
+ins_rem::= PA PUNTO ins_rem1;
+
+ins_rem1::= INSERTAR PARENTESIS_ABRIR PA PARENTESIS_CERRAR PUNTO_Y_COMA |
+            INSERTAR PARENTESIS_ABRIR PARENTESIS_CERRAR PUNTO_Y_COMA:e {:Cup.append("Linea: "+(eleft+1)+" Falta Nombre");:} |
+            REMOVER PARENTESIS_ABRIR PARENTESIS_CERRAR PUNTO_Y_COMA:e {:Cup.append("Linea: "+(eleft+1)+" Falta Nombre");:} |
+            INSERTAR PARENTESIS_ABRIR PA PARENTESIS_CERRAR:e {:Cup.append("Linea: "+(eleft+1)+" Faltó punto y coma");:} |
+            REMOVER PARENTESIS_ABRIR PA PARENTESIS_CERRAR:e {:Cup.append("Linea: "+(eleft+1)+" Faltó punto y coma");:} |
+            EMBEBIDOPARCIAL PARENTESIS_ABRIR CAD COMA PA PARENTESIS_CERRAR PUNTO_Y_COMA |
+            EMBEBIDOPARCIAL PARENTESIS_ABRIR CAD COMA PA PARENTESIS_CERRAR:e {:Cup.append("Linea: "+(eleft+1)+" Faltó punto y coma");:}  |
+            EMBEBIDOCOMPLETO PARENTESIS_ABRIR CAD COMA PA PARENTESIS_CERRAR PUNTO_Y_COMA |
+            EMBEBIDOCOMPLETO PARENTESIS_ABRIR CAD COMA PA PARENTESIS_CERRAR:e {:Cup.append("Linea: "+(eleft+1)+" Faltó punto y coma");:} |
+            REMOVER PARENTESIS_ABRIR PA PARENTESIS_CERRAR PUNTO_Y_COMA | error PUNTO_Y_COMA;
+
+op_base::= BASEDATOS PUNTO op_base1;
+
+op_base1::= INSERTAR PARENTESIS_ABRIR PA PARENTESIS_CERRAR PUNTO_Y_COMA |
+            INSERTAR PARENTESIS_ABRIR PARENTESIS_CERRAR PUNTO_Y_COMA:e {:Cup.append("Linea: "+(eleft+1)+" Falta Nombre");:} |
+            REMOVER PARENTESIS_ABRIR CAD PARENTESIS_CERRAR PUNTO_Y_COMA |
+            REMOVER PARENTESIS_ABRIR CAD PARENTESIS_CERRAR:e {:Cup.append("Linea: "+(eleft+1)+" Faltó punto y coma");:}  |
+            BASEDATOS PUNTO INSERTAR PARENTESIS_ABRIR PA PARENTESIS_CERRAR:e {:Cup.append("Linea: "+(eleft+1)+" Faltó punto y coma");:} |
+            BASEDATOS PUNTO INSERTAR PARENTESIS_ABRIR PA PARENTESIS_CERRAR PUNTO_Y_COMA
+            | error PUNTO_Y_COMA;
+
+parametros_recibidos::= dato 
+                        | dato nuevo_parametro;
+
+nuevo_parametro::= COMA parametros_recibidos | error PUNTO_Y_COMA;
+
+asignar::= ID SIGNO_DE_ASIGNACION operacion PUNTO_Y_COMA;
+
+//********************************** SI ***************************************
+
+sentencia_si::=  SI PARENTESIS_ABRIR condicion PARENTESIS_CERRAR sentencia_si1; 
+
+sentencia_si1::= cuerpo_metodo FIN_SI sentencia_si2| FIN_SI sentencia_si2 | error FIN_SI;
+
+sentencia_si2::= sentencia_sino | '';
+
+sentencia_sino::= SINO cuerpo_metodo FIN_SINO |
+                    SINO FIN_SINO;
+sentencia_repite::= REPITE PARENTESIS_ABRIR NUM_ENTERO PARENTESIS_CERRAR cuerpo_metodo FIN_REPITE |
+                    REPITE PARENTESIS_ABRIR NUM_ENTERO PARENTESIS_CERRAR FIN_REPITE | error FIN_REPITE;
+
+sentencia_mientras::= MIENTRAS PARENTESIS_ABRIR condicion PARENTESIS_CERRAR cuerpo_metodo FIN_MIENTRAS |
+			MIENTRAS PARENTESIS_ABRIR condicion PARENTESIS_CERRAR FIN_MIENTRAS | error FIN_MIENTRAS;
+
+sentencia_segun::= SEGUN PARENTESIS_ABRIR ID PARENTESIS_CERRAR FIN_SEGUN |
+		       SEGUN PARENTESIS_ABRIR ID PARENTESIS_CERRAR cas FIN_SEGUN | error FIN_SEGUN;
+
+cas::= CASO dato_caso HACER DOS_PUNTOS cuerpo_metodo |
+	CASO dato_caso HACER DOS_PUNTOS cuerpo_metodo cas |
+        CASO dato_caso HACER DOS_PUNTOS |
+        CASO dato_caso HACER DOS_PUNTOS cas;
+
+dato_caso::= CAD | NUM_ENTERO | VERDADERO | FALSO;
+
+condicion::= cond log cond | 
+NEGACION PARENTESIS_ABRIR condicion PARENTESIS_CERRAR | 
+cond;
+
+cond::= ope_relacional | 
+        PARENTESIS_ABRIR condicion PARENTESIS_CERRAR;
+
+log::= AND | OR;
+
+ope_relacional::= op_rel sig_rel op_rel;
+
+op_rel::= ID | VERDADERO | FALSO | NUM_ENTERO | CAD;
+
+sig_rel::= MAYOR_QUE |
+		MENOR_QUE |
+		MENOR_IGUAL |
+		MAYOR_IGUAL |
+                IGUAL_A |
+                DIFERENTE_DE
+                | ''{:Cup.append(" Operador Logico No Encontrado");:};
+
+eje_pro::= EJECUTAR asigna_base FIN_EJECUTAR | EJECUTAR asigna_base cuerpo_metodo JSON PUNTO IMPRIMIR FIN_EJECUTAR | 
+EJECUTAR asigna_base cuerpo_metodo FIN_EJECUTAR;
+
+asigna_base::= BASEDATOS PARENTESIS_ABRIR CAD PARENTESIS_CERRAR PUNTO_Y_COMA |
+                BASEDATOS PARENTESIS_ABRIR CAD PARENTESIS_CERRAR:e {:Cup.append("Linea: "+(eleft+1)+" Faltó punto y coma");:}
+                | error PUNTO_Y_COMA
+;

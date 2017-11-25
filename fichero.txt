@@ -1,0 +1,6 @@
+new fly plan Plan_de_Vuelo
+on;
+sync;
+
+off;
+end

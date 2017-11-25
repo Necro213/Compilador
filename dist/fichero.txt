@@ -1,0 +1,6 @@
+inicio_programa ProgramaNuev
+         
+         Ejecutar
+	BaseDatos("");
+         Fin_Ejecutar
+f
