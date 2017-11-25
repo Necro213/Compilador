@@ -64,7 +64,7 @@ public class Interface extends javax.swing.JFrame {
         final AttributeSet blue = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, Color.blue);
         final AttributeSet orange = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, new Color(163,102,12));
         final AttributeSet VerAz = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, new Color(26,115,86));
-        final AttributeSet AzF = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, new Color(98,49,83));
+        final AttributeSet AzF = cont.addAttribute(cont.getEmptySet(), StyleConstants.Foreground, new Color(98,49,255));
         
         doc = new DefaultStyledDocument() {
 
@@ -85,13 +85,13 @@ public class Interface extends javax.swing.JFrame {
 
                         if (text.substring(wordL, wordR).matches("(\\W)*(new|end)")) {
                             setCharacterAttributes(wordL, wordR - wordL, red, false);
-                        } else if (text.substring(wordL, wordR).matches("(\\W)*()")) {
-                            setCharacterAttributes(wordL, wordR - wordL, VerAz, false);
-                        } else if (text.substring(wordL, wordR).matches("(\\W)*()")) {
+                        } else if (text.substring(wordL, wordR).matches("(\\W)*(|loop|sleep|up|down|left|rigth|forward|"
+                                + "backward|" +
+                                "rotate|level|speed|stand|start)")) {
                             setCharacterAttributes(wordL, wordR - wordL, blue, false);
-                        } else if (text.substring(wordL, wordR).matches("(\\W)*(var)")) {
+                        } else if (text.substring(wordL, wordR).matches("(\\W)*(var|sync)")) {
                             setCharacterAttributes(wordL, wordR - wordL, orange, false);
-                        }else if (text.substring(wordL, wordR).matches("(\\W)*()")) {
+                        }else if (text.substring(wordL, wordR).matches("(\\W)*(plan|fly|on|off)")) {
                             setCharacterAttributes(wordL, wordR - wordL, VerAz, false);
                         }  else{
                             setCharacterAttributes(wordL, wordR - wordL, Black, false);
@@ -432,7 +432,12 @@ public class Interface extends javax.swing.JFrame {
         });
         jMenu2.add(Compilar2);
 
-        jMenuItem1.setText("jMenuItem1");
+        jMenuItem1.setText("Gramatica");
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem1ActionPerformed(evt);
+            }
+        });
         jMenu2.add(jMenuItem1);
 
         BarraMenus.add(jMenu2);
@@ -511,12 +516,12 @@ public class Interface extends javax.swing.JFrame {
         
         Errores.setText("");
         DireccionPath = "";
-        tp.setText("inicio_programa ProgramaNuevo\n" +
-        "\n" +
-        "   Ejecutar\n" +
-        "       BaseDatos(\"\");\n" +
-        "   Fin_Ejecutar\n" +
-        "fin");
+        tp.setText("new fly plan Plan_de_Vuelo\n" +
+                    "on;\n" +
+                    "sync;\n" +
+                    "\n" +
+                    "off;\n" +
+                    "end");
     }//GEN-LAST:event_btnNuevoActionPerformed
 
     private void btnAbrirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAbrirActionPerformed
@@ -530,6 +535,11 @@ public class Interface extends javax.swing.JFrame {
     private void jLabel2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel2MouseClicked
         System.exit(0);
     }//GEN-LAST:event_jLabel2MouseClicked
+
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+       Gramatica gramar =  new Gramatica(this, rootPaneCheckingEnabled, produtions);
+       gramar.setVisible(true);
+    }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     private void run() throws IOException, Exception {
         //////GUARDANDO CÓDIGO
@@ -710,8 +720,8 @@ public class Interface extends javax.swing.JFrame {
                 File guardar = guardarA.getSelectedFile();
                 
                 if(guardar != null){
-                    DireccionPath = guardar + ".jcc";
-                    FileWriter  save=new FileWriter(guardar+".jcc");
+                    DireccionPath = guardar + ".fpc";
+                    FileWriter  save=new FileWriter(guardar+".fpc");
                     save.write(tp.getText());
                     save.close();
                 }
@@ -748,8 +758,8 @@ public class Interface extends javax.swing.JFrame {
                 File guardar = guardarA.getSelectedFile();
                 
                 if(guardar != null){
-                    DireccionPath = guardar + ".jcc";
-                    FileWriter  save=new FileWriter(guardar+".jcc");
+                    DireccionPath = guardar + ".fpc";
+                    FileWriter  save=new FileWriter(guardar+".fpc");
                     save.write(tp.getText());
                     save.close();
                 }
