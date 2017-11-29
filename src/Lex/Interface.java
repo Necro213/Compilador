@@ -38,6 +38,7 @@ import javax.swing.text.StyleContext;
 // para los comentarios poner una variable de charat(i) y que compare con charat(i+1)
 // si el primero es un guion y el segundo tambien no lo tome en el automata que brinque la linea
 public class Interface extends javax.swing.JFrame {
+    private boolean compilado = false;
     private String r = "";
     private DefaultStyledDocument doc;
     private DefaultTableModel dtm;
@@ -85,7 +86,7 @@ public class Interface extends javax.swing.JFrame {
 
                         if (text.substring(wordL, wordR).matches("(\\W)*(new|end)")) {
                             setCharacterAttributes(wordL, wordR - wordL, red, false);
-                        } else if (text.substring(wordL, wordR).matches("(\\W)*(|loop|sleep|up|down|left|rigth|forward|"
+                        } else if (text.substring(wordL, wordR).matches("(\\W)*(|loop|sleep|up|down|left|right|forward|"
                                 + "backward|" +
                                 "rotate|level|speed|stand|start)")) {
                             setCharacterAttributes(wordL, wordR - wordL, blue, false);
@@ -153,6 +154,7 @@ public class Interface extends javax.swing.JFrame {
         btnAbrir = new javax.swing.JButton();
         btnGuardar = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
+        jButton1 = new javax.swing.JButton();
         Panel_Sur = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         Errores = new javax.swing.JTextArea();
@@ -238,6 +240,13 @@ public class Interface extends javax.swing.JFrame {
             }
         });
 
+        jButton1.setText("Generar Codigo");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout Panel_NorteLayout = new javax.swing.GroupLayout(Panel_Norte);
         Panel_Norte.setLayout(Panel_NorteLayout);
         Panel_NorteLayout.setHorizontalGroup(
@@ -250,7 +259,9 @@ public class Interface extends javax.swing.JFrame {
                 .addComponent(btnGuardar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(Compilar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 492, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jButton1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 362, Short.MAX_VALUE)
                 .addComponent(jLabel2)
                 .addGap(20, 20, 20))
         );
@@ -263,7 +274,8 @@ public class Interface extends javax.swing.JFrame {
                     .addComponent(btnNuevo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnAbrir, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btnGuardar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jButton1))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -449,7 +461,7 @@ public class Interface extends javax.swing.JFrame {
    
 
     private void tpKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tpKeyPressed
-        
+        compilado = false;
      
     }//GEN-LAST:event_tpKeyPressed
 
@@ -495,10 +507,10 @@ public class Interface extends javax.swing.JFrame {
                     Errores.append("\n"+error);
                 }
             }else{
+                
                 Errores.append("\n------------Compilado Correctamente----------------");
             }
             listaErrores.clear();
-             lexemes.forEach(x->{System.out.println(x);});
              tablaSimbols();
             
         } catch (IOException ex) {
@@ -513,7 +525,7 @@ public class Interface extends javax.swing.JFrame {
     }//GEN-LAST:event_SalirActionPerformed
 
     private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
-        
+        compilado = false;
         Errores.setText("");
         DireccionPath = "";
         tp.setText("new fly plan Plan_de_Vuelo\n" +
@@ -537,9 +549,31 @@ public class Interface extends javax.swing.JFrame {
     }//GEN-LAST:event_jLabel2MouseClicked
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-       Gramatica gramar =  new Gramatica(this, rootPaneCheckingEnabled, produtions);
+       if(compilado == false){
+           javax.swing.JOptionPane.showMessageDialog(rootPane, "No se ha compilado o el codigo contiene errores");
+           return;
+       }
+        Gramatica gramar =  new Gramatica(this, rootPaneCheckingEnabled, produtions);
        gramar.setVisible(true); // este codigo tambien se agrego himura
+       produtions.clear();
     }//GEN-LAST:event_jMenuItem1ActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        if(compilado == false){
+           javax.swing.JOptionPane.showMessageDialog(rootPane, "No se ha compilado o el codigo contiene errores");
+           return;
+       }
+        String code = reformatCode();
+         try {
+            File archivo = new File("PlanVuelo/PlanVuelo.ino");
+            try (FileWriter escribir = new FileWriter(archivo, false)) {
+                escribir.write(code);
+            }
+        } catch (Exception e) {
+        }
+        CodigoIntermedio ventana = new CodigoIntermedio(this, rootPaneCheckingEnabled, code);
+        ventana.setVisible(true);
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     private void run() throws IOException, Exception {
         //////GUARDANDO CÓDIGO
@@ -563,9 +597,11 @@ public class Interface extends javax.swing.JFrame {
     private void mostrarResultados() {
         Errores.setText("Compilado en " + " milisegundos.\n");
         if (listaErrores.isEmpty()) {
+            compilado = true;
             Errores.setText("Compilado con éxito!!\n");
            
         } else {
+            compilado = false;
             for (String error : listaErrores) {
                 System.err.println(error);
                 Errores.setText(Errores.getText() + error + "\n");
@@ -685,7 +721,7 @@ public class Interface extends javax.swing.JFrame {
                     }
                     
         });
-        
+        lexemes.clear();
         tablatokens.setModel(dtm);
     }
     
@@ -797,6 +833,124 @@ public class Interface extends javax.swing.JFrame {
         }
     }
  
+    private String reformatCode(){
+        String code = tp.getText();
+        String numero = "[0-9]+";
+        String palabra = "[a-z|A-Z|_]+";
+        
+        code = code.replaceAll("(\\W)*(new)", "");
+        code = code.replace("fly", "");
+        code = code.replace("plan", "");
+        code = code.replaceFirst(palabra, "");
+        code = code.replaceAll("on;", "");
+        code = code.replaceAll("(\\W)*(var)", "int");
+        code = code.replaceAll("@", "");
+        code = code.replaceAll("sync;", "  for(int A=0;A<255 ;A+=2){\n" +
+                                        "    analogWrite(6,A);\n" +
+                                        "    delay(20);\n" +
+                                        "  }\n" +
+                                        "  digitalWrite(6,0);");
+        code = code.replaceAll("sleep[(]", "delay(");
+        code = code.replaceAll("level[(][\\d][)];", "");
+        code = code.replaceAll("speed[(][\\d][)];", "");
+        code = code.replaceAll("off;", "");
+        code = code.replaceAll("end", "}");
+        
+        for(int i = 0; i<1000; i++){
+        code = code.replaceAll("loop[(]"+i+"[)]", "for(int i=0; i<"+i+"; i++)");
+        }
+        
+        
+        String newCode = "// Rutina de Setup, corre una vez p cuando se presiona Reset\n" +
+"void setup() {\n" +
+"  // Inicializa los pines 6, 9, 10 y como pines de salida\n" +
+"  pinMode(6, OUTPUT);    // Stick Izquierdo Acelerar - Desacelerar\n" +
+"  pinMode(9, OUTPUT);    // Stick Izquierdo Rotación Izq - Der\n" +
+"  pinMode(10, OUTPUT);   // Stick Derecho Eje X\n" +
+"  pinMode(11 , OUTPUT);  // Stick Izquierdo Eje Y\n" +
+"  Serial.begin(9600);\n" +
+"}\n" +
+"\n" +
+"// Valor mayor a 127\n" +
+"void up(int time){\n" +
+"  analogWrite(6, 190);\n" +
+"  delay(time);\n" +
+"  digitalWrite(6, 0);\n" +
+"  delay(time);\n" +
+"}\n" +
+"\n" +
+"// Valor mayor a 127\n" +
+"void forward(int time){\n" +
+"  analogWrite(6, 210);\n" +
+"  analogWrite(11, 185);\n" +
+"  delay(time);\n" +
+"  digitalWrite(6, 0);\n" +
+"  digitalWrite(11,0);\n" +
+"  delay(time);\n" +
+"}\n" +
+"\n" +
+"// Valor menor a 127\n" +
+"void backward(int time){\n" +
+"  analogWrite(6, 210);\n" +
+"  analogWrite(11, 60);\n" +
+"  delay(time);\n" +
+"  digitalWrite(6, 0);\n" +
+"  digitalWrite(11,0);\n" +
+"  delay(time);\n" +
+"}\n" +
+"\n" +
+"// Valor menor a 127 rota izquierda, valor mayor a 127 rota derecha\n" +
+"void rotate(int valor){\n" +
+"  if(valor <= 127){\n" +
+"    analogWrite(6, 210);\n" +
+"    analogWrite(9, 75);\n" +
+"    delay(1500);\n" +
+"    digitalWrite(6, 0);\n" +
+"    digitalWrite(9,0);\n" +
+"    delay(1500); \n" +
+"  }\n" +
+"\n" +
+"  if(valor > 127){\n" +
+"    analogWrite(6, 210);\n" +
+"    analogWrite(9, 185);\n" +
+"    delay(1500);\n" +
+"    digitalWrite(6, 0);\n" +
+"    digitalWrite(9,0);\n" +
+"    delay(1500); \n" +
+"  }\n" +
+"}\n" +
+"\n" +
+"// Valor menor a 127\n" +
+"void left(int time){\n" +
+"  analogWrite(6, 210);\n" +
+"  analogWrite(10, 75);\n" +
+"  delay(time);\n" +
+"  digitalWrite(6, 0);\n" +
+"  digitalWrite(10,0);\n" +
+"  delay(time);\n" +
+"}\n" +
+"\n" +
+"// Valor mayor a 127\n" +
+"void right(int time){\n" +
+"  analogWrite(6, 210);\n" +
+"  analogWrite(10, 185);\n" +
+"  delay(time);\n" +
+"  digitalWrite(6, 0);\n" +
+"  digitalWrite(10,0);\n" +
+"  delay(time);\n" +
+"}\n" +
+"\n" +
+"// Sincronizar control con drone\n" +
+"void sincronizar(){\n" +
+"  analogWrite(6,254);\n" +
+"  analogWrite(6,0);\n" +
+"}\n" +
+"\n" +
+"void loop() {" +
+                            "\n";
+        newCode += code;
+        return newCode;
+    }
 
 
     
@@ -857,6 +1011,7 @@ public class Interface extends javax.swing.JFrame {
     private javax.swing.JButton btnAbrir;
     private javax.swing.JButton btnGuardar;
     private javax.swing.JButton btnNuevo;
+    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JMenu jMenu2;

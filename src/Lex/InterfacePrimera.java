@@ -451,7 +451,7 @@ public class InterfacePrimera extends javax.swing.JFrame {
    
 
     private void tpKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tpKeyPressed
-        
+
      
     }//GEN-LAST:event_tpKeyPressed
 
